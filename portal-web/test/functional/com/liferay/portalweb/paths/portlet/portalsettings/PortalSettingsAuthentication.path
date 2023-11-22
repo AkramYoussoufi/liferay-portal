@@ -307,6 +307,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>LDAP_SERVER_TEST_LDAP_ANY_INPUT</td>
+	<td>//label[contains(text(), '${name}')]/following-sibling::*</td>
+	<td></td>
+</tr>
+<tr>
 	<td></td>
 	<td></td>
 	<td></td>

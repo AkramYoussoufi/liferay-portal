@@ -1,5 +1,17 @@
 definition {
 
+	macro setCheckBoxesSettingsToLDAP(configurationName,checkboxName){
+		PortalSettings.gotoConfiguration(
+				configurationCategory = "LDAP",
+				configurationName = "${configurationName}",
+				configurationScope = "Virtual Instance Scope");
+			Click(
+				checkboxName="${checkboxName}",
+				locator1="Checkbox#ANY_CHECKBOX"
+			);	
+			Button.clickSave();
+	}
+
 	@description = "Add Apache DS server and test the connection between it and Liferay DXP"
 	@summary = "Default summary"
 	macro addLDAPServerAndTestConnection(baseURL = null, ldapServerName = null) {

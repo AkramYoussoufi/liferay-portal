@@ -724,4 +724,83 @@ definition {
 		}
 	}
 
+	@priority = 3
+	test LDAPTest {
+		property apacheds.enabled = "true";
+		task("Given the LDAP settings"){
+			var configurationNameList = "General,Export,Import,Import";
+			var checkboxName = "Enabled,Enable Export,Enable Import,Enable Import on Startup";
+			var i = 0;
+
+			var list1 = ListUtil.newListFromString(${configurationNameList});
+            var list2 = ListUtil.newListFromString(${checkboxName});
+            var size = ListUtil.size(${list1});
+
+		while(${i} != ${size}){
+			var configurationName = ListUtil.get(${list1}, ${i});
+            var checkboxName = ListUtil.get(${list2}, ${i});
+			LDAP.setCheckBoxesSettingsToLDAP(
+				configurationName=${configurationName},
+				checkboxName=${checkboxName}
+			);
+				var i = ${i} + 1;
+
+				var i = StringUtil.valueOf(${i});
+			}	
+		}
+		task("and Given the custom field 'Testfield'"){
+			
+		CustomFields.openCustomFieldAdmin();
+
+		CustomFields.addCP(
+			customFieldName = "Testfield",
+			customFieldType = "Text Area",
+			resourceName = "User");	
+
+		LDAP.addLDAPServerAndTestConnection(ldapServerName = "ApacheDS Server");
+		PortalSettings.editLDAPServer(ldapServerName = "ApacheDS Server");
+		Type(
+				name="Custom User Mapping",
+				locator1="PortalSettingsAuthentication#LDAP_SERVER_TEST_LDAP_ANY_INPUT",
+				value1="testField=telephoneNumber"
+		);
+		Button.clickSave();	
+		}
+		task("and Given added User"){
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+		User.openUsersAdmin();
+
+		UserNavigator.gotoUser(userScreenName = "usersn");
+        Type(
+				locator1="TextInput#CUSTOM_FIELD",
+				value1="01010101"
+		);
+		Button.clickSave();		
+		}
+		task ("When we change the custom field through the LDAP Server") {
+			LDAP.installLDAPCommandUtil();
+			LDAP.importLDIFOnLDAPAndTriggerSync(ldifName = "customField");
+		}
+		task ("And portal is restarted") {
+			Portlet.shutdownServer();
+
+			Portlet.startServer(deleteLiferayHome = "false");
+		}
+		task("Then the changes happened in the LDAP Server should be synchronized with the portal"){
+		User.openUsersAdmin();
+
+		UserNavigator.gotoUser(userScreenName = "usersn");
+
+		AssertTextEquals(
+				locator1="TextInput#CUSTOM_FIELD",
+				value1="02020202"
+		);
+		}
+
+	}
+
 }

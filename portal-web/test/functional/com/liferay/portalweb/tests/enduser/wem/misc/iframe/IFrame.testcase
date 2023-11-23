@@ -43,6 +43,41 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LPS-171989"
+	@priority = 3
+	test VerifyFramJSPolutionVulnerability {
+		task ("Given Configuration to the IFrame widget") {
+			Navigator.gotoSitePage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			Portlet.gotoPortletOptions(
+				portletName = "IFrame",
+				portletOption = "Configuration");
+
+			BlogsConfiguration.selectConfigurationIFrame();
+
+			Type(
+				key_fieldLabel = "Source URL",
+				locator1 = "CustomFields#CUSTOM_INPUT_FIELD",
+				value1 = "http://liferay-u8p8o9b2:8080/web/guest/home");
+
+			IFrame.saveConfiguration();
+
+			Navigator.gotoSitePage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("When Navigating to the IFrame location with url parameters in a new Tab") {
+			Open.openInTheNewTab(value1 = "http://liferay-u8p8o9b2:8080/web/test-site-name#constructor[prototype][comboBase]=data%3A%2Calert%281%29");
+		}
+
+		task ("Then alert popup should not appear") {
+			AssertAlertNotPresent();
+		}
+	}
+
 	@description = "View IFrame widget is shown on the page."
 	@priority = 3
 	test ViewIFrameWidget {

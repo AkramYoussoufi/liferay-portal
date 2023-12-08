@@ -1,0 +1,47 @@
+@component-name = "portal-solutions"
+definition {
+
+	property app.server.types = "tomcat";
+	property ci.retries.disabled = "true";
+	property database.bare.enabled = "true";
+	property database.types = "mysql";
+	property minimum.slave.ram = "24";
+	property osgi.modules.includes = "site-initializer-liferay-marketplace";
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property skip.start.app.server = "true";
+	property test.liferay.virtual.instance = "false";
+	property test.run.type = "single";
+	property testcase.url = "file:///opt/dev/projects/github/liferay-portal/";
+	property testray.main.component.name = "Upgrades Solutions";
+
+	var testSiteName = "Marketplace Site";
+	var testSiteURL = "marketplace-site";
+
+	setUp {
+		Upgrade.startReleasedBundle();
+	}
+
+	@description = "Verify if Liferay Marketplace create by site-initializer will presist after post-upgrade"
+	@priority = 5
+	test CanMP20BeCreated {
+		task ("Given Marketplace setup up"){
+            MP2Configuration.marketplaceSetUp();
+		}
+		task ("And Given that I go to the Marketplace Site") {
+			ApplicationsMenu.gotoSite(site = ${testSiteName});
+		}
+
+		task ("Upgrade") {
+			Upgrade.restoreOriginalBundleAndUpgrade();
+			TestUtils.hardRefresh();
+		}
+
+		task ("Then I should be able to assert that the App Marketplace page is present") {
+			AssertElementPresent(
+				key_title = "Applications",
+				locator1 = "Marketplace#FRAGMENT_HEADING");
+		}
+	}
+
+}
